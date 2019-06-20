@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,11 +14,13 @@ namespace Version2
 
             var services = new ServiceCollection();
             var repoFactory = new RepositoryFactory();
+            var uowFactory = new SqlUnitOfWorkFactory("Server=SL-24BGV02;Database=Sandpit;Trusted_Connection=True;");
             services.AddSingleton<IRepositoryFactory>(repoFactory);
+            services.AddSingleton<IUnitOfWorkFactory>(uowFactory);
 
             try
             {
-                MainAsync(repoFactory).GetAwaiter().GetResult();
+                MainAsync(uowFactory, repoFactory).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
@@ -28,26 +31,37 @@ namespace Version2
             Console.ReadLine();
         }
 
-        public static async Task MainAsync(IRepositoryFactory repositoryFactory)
+        public static async Task MainAsync(IUnitOfWorkFactory unitOfWorkFactory, IRepositoryFactory repositoryFactory)
         {
-            using (var uow = new SqlUnitOfWork(new SqlConnection("Server=SL-24BGV02;Database=Sandpit;Trusted_Connection=True;")))
+            var tasks = new List<Task>();
+
+            for (var i = 0; i < 1000; i++)
+            {
+                tasks.Add(CreateAsync(unitOfWorkFactory, repositoryFactory, $"Product {i}", $"Customer {i}"));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+
+        public static async Task CreateAsync(IUnitOfWorkFactory unitOfWorkFactory, IRepositoryFactory repositoryFactory, string productName, string customerName)
+        {
+            using (var uow = unitOfWorkFactory.Create())
             {
                 try
                 {
                     await uow.BeginAsync().ConfigureAwait(false);
 
                     var quoteRepository = repositoryFactory.Create<IQuoteRepository>(uow);
-                    var quoteId = await quoteRepository.CreateAsync(new Quote("MyProduct")).ConfigureAwait(false);
-                    await quoteRepository.CreateAsync(new QuoteCustomer(quoteId, "Joe Blog")).ConfigureAwait(false);
+                    var quoteId = await quoteRepository.CreateAsync(new Quote(productName)).ConfigureAwait(false);
+                    await quoteRepository.CreateAsync(new QuoteCustomer(quoteId, customerName)).ConfigureAwait(false);
 
                     uow.Commit();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     uow.Rollback();
                     throw;
                 }
-                
             }
         }
     }
