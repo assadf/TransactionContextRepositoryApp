@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryTransactionApp", "RepositoryTransactionApp\RepositoryTransactionApp.csproj", "{83DAEEF0-0304-4340-9F50-C2355FFBEA6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83DAEEF0-0304-4340-9F50-C2355FFBEA6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83DAEEF0-0304-4340-9F50-C2355FFBEA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83DAEEF0-0304-4340-9F50-C2355FFBEA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83DAEEF0-0304-4340-9F50-C2355FFBEA6F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BD2A23A-49BD-4E26-AF0B-DD25BF1CAECE}
+	EndGlobalSection
+EndGlobal
