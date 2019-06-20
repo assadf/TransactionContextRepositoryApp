@@ -6,7 +6,7 @@ namespace Version2
 {
     interface IUnitOfWorkFactory
     {
-        Task CreateAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow);
+        Task ExecuteTransactionAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow);
     }
 
     public class SqlUnitOfWorkFactory : IUnitOfWorkFactory
@@ -18,7 +18,7 @@ namespace Version2
             _connectionString = connectionString;
         }
 
-        public async Task CreateAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow)
+        public async Task ExecuteTransactionAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow)
         {
             using (var uow = new SqlUnitOfWork(new SqlConnection(_connectionString)))
             {

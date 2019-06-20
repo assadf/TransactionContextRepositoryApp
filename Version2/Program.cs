@@ -47,7 +47,7 @@ namespace Version2
 
         public static async Task CreateAsync(IUnitOfWorkFactory unitOfWorkFactory, IRepositoryFactory repositoryFactory, string productName, string customerName)
         {
-            await unitOfWorkFactory.CreateAsync(async (uow) =>
+            await unitOfWorkFactory.ExecuteTransactionAsync(async (uow) =>
             {
                 var quoteRepository = repositoryFactory.Create<IQuoteRepository>(uow);
                 var quoteId = await quoteRepository.CreateAsync(new Quote(productName)).ConfigureAwait(false);
