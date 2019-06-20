@@ -47,21 +47,15 @@ namespace Version2
 
         public static async Task CreateAsync(IUnitOfWorkFactory unitOfWorkFactory, IRepositoryFactory repositoryFactory, string productName, string customerName)
         {
-            using (var uow = await unitOfWorkFactory.CreateAsync())
+            await unitOfWorkFactory.CreateAsync(async (uow) =>
             {
-                try
-                {
-                    var quoteRepository = repositoryFactory.Create<IQuoteRepository>(uow);
-                    var quoteId = await quoteRepository.CreateAsync(new Quote(productName)).ConfigureAwait(false);
-                    await quoteRepository.CreateAsync(new QuoteCustomer(quoteId, customerName)).ConfigureAwait(false);
-                    uow.Commit();
-                }
-                catch (Exception)
-                {
-                    uow.Rollback();
-                    throw;
-                }
-            }
+                var quoteRepository = repositoryFactory.Create<IQuoteRepository>(uow);
+                var quoteId = await quoteRepository.CreateAsync(new Quote(productName)).ConfigureAwait(false);
+                await quoteRepository.CreateAsync(new QuoteCustomer(quoteId, customerName)).ConfigureAwait(false);
+            }, async () =>
+            {
+                Console.WriteLine("Something went wrong!!!");
+            });
         }
     }
 }

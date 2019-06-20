@@ -6,7 +6,7 @@ namespace Version2
 {
     interface IUnitOfWorkFactory
     {
-        Task<IUnitOfWork> CreateAsync();
+        Task CreateAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow);
     }
 
     public class SqlUnitOfWorkFactory : IUnitOfWorkFactory
@@ -18,11 +18,23 @@ namespace Version2
             _connectionString = connectionString;
         }
 
-        public async Task<IUnitOfWork> CreateAsync()
+        public async Task CreateAsync(Func<IUnitOfWork, Task> normalFlow, Func<Task> exceptionFlow)
         {
-            var uow = new SqlUnitOfWork(new SqlConnection(_connectionString));
-            await uow.BeginAsync().ConfigureAwait(false);
-            return uow;
+            using (var uow = new SqlUnitOfWork(new SqlConnection(_connectionString)))
+            {
+                try
+                {
+                    await uow.BeginAsync().ConfigureAwait(false);
+                    await normalFlow.Invoke(uow).ConfigureAwait(false);
+                    uow.Commit();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    uow.Rollback();
+                    await exceptionFlow.Invoke().ConfigureAwait(false);
+                }
+            }
         }
     }
 }
