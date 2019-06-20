@@ -13,10 +13,12 @@ namespace Version2
             Console.WriteLine("Started");
 
             var services = new ServiceCollection();
-            var repoFactory = new RepositoryFactory();
+
             var uowFactory = new SqlUnitOfWorkFactory("Server=SL-24BGV02;Database=Sandpit;Trusted_Connection=True;");
-            services.AddSingleton<IRepositoryFactory>(repoFactory);
             services.AddSingleton<IUnitOfWorkFactory>(uowFactory);
+
+            var repoFactory = new RepositoryFactory("Version2");
+            services.AddSingleton<IRepositoryFactory>(repoFactory);
 
             try
             {
@@ -35,7 +37,7 @@ namespace Version2
         {
             var tasks = new List<Task>();
 
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 tasks.Add(CreateAsync(unitOfWorkFactory, repositoryFactory, $"Product {i}", $"Customer {i}"));
             }

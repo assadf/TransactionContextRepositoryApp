@@ -29,7 +29,7 @@ namespace Version2
             Connection = connection;
         }
 
-        public IDbConnection Connection { get; }
+        public IDbConnection Connection { get; private set; }
         public IDbTransaction Transaction { get; private set; }
 
         public async Task BeginAsync()
@@ -51,6 +51,11 @@ namespace Version2
 
         public void Dispose()
         {
+            if (Connection?.State != ConnectionState.Closed)
+            {
+                Connection?.Close();
+            }
+
             Connection?.Dispose();
             Transaction?.Dispose();
         }
