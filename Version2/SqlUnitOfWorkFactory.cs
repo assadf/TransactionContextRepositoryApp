@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Version2
 {
     interface IUnitOfWorkFactory
     {
-        IUnitOfWork Create();
+        Task<IUnitOfWork> CreateAsync();
     }
 
     public class SqlUnitOfWorkFactory : IUnitOfWorkFactory
@@ -17,9 +18,11 @@ namespace Version2
             _connectionString = connectionString;
         }
 
-        public IUnitOfWork Create()
+        public async Task<IUnitOfWork> CreateAsync()
         {
-            return new SqlUnitOfWork(new SqlConnection(_connectionString));
+            var uow = new SqlUnitOfWork(new SqlConnection(_connectionString));
+            await uow.BeginAsync().ConfigureAwait(false);
+            return uow;
         }
     }
 }

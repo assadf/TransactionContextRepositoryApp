@@ -37,7 +37,7 @@ namespace Version2
         {
             var tasks = new List<Task>();
 
-            for (var i = 0; i < 10000; i++)
+            for (var i = 0; i < 100; i++)
             {
                 tasks.Add(CreateAsync(unitOfWorkFactory, repositoryFactory, $"Product {i}", $"Customer {i}"));
             }
@@ -47,16 +47,13 @@ namespace Version2
 
         public static async Task CreateAsync(IUnitOfWorkFactory unitOfWorkFactory, IRepositoryFactory repositoryFactory, string productName, string customerName)
         {
-            using (var uow = unitOfWorkFactory.Create())
+            using (var uow = await unitOfWorkFactory.CreateAsync())
             {
                 try
                 {
-                    await uow.BeginAsync().ConfigureAwait(false);
-
                     var quoteRepository = repositoryFactory.Create<IQuoteRepository>(uow);
                     var quoteId = await quoteRepository.CreateAsync(new Quote(productName)).ConfigureAwait(false);
                     await quoteRepository.CreateAsync(new QuoteCustomer(quoteId, customerName)).ConfigureAwait(false);
-
                     uow.Commit();
                 }
                 catch (Exception)
